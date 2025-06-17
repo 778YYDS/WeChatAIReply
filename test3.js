@@ -67,7 +67,7 @@ async function main() {
     return $.done();
   }
 
-  const appId = "dDtSst46"; // ← 替换为你的 App ID
+  const appId = "JdsubPZs"; // ← 替换为你的 App ID
   const loop = parseInt($.getdata("tf_loon_count")) || 3;
   const delay = parseInt($.getdata("tf_interval")) || 2;
 
