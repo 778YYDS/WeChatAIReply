@@ -69,7 +69,7 @@ async function main() {
 
   const appId = "dDtSst46"; // ← 替换为你的 App ID
   const loop = parseInt($.getdata("tf_loon_count")) || 3;
-  const delay = parseInt($.getdata("tf_interval")) || 2;
+  const delay = parseInt($.getdata("tf_interval")) || 5;
 
   const baseURL = `https://testflight.apple.com/v3/accounts/${Key}/ru/`;
   const headers = {
@@ -96,7 +96,7 @@ async function main() {
     } catch (e) {
       $.log(`❌ 加入失败: ${e}`);
     }
-    await sleep(delay * 5000);
+    await sleep(delay * 1000);
   }
 
   $.done();
