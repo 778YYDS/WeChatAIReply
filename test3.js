@@ -96,7 +96,7 @@ async function main() {
     } catch (e) {
       $.log(`❌ 加入失败: ${e}`);
     }
-    await sleep(delay * 1000);
+    await sleep(delay * 5000);
   }
 
   $.done();
