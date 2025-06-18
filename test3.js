@@ -1,6 +1,6 @@
 /******************************************
- * @name TF 自动抓取参数 + 正式加入 TF 应用
- * @version 1.1.1
+ * @name TF 自动抓取参数 + 无限循环正式加入
+ * @version 1.2.0
  ******************************************/
 
 const $ = new Env("TestFlight自动加入");
@@ -49,7 +49,7 @@ function getParams() {
   }
 }
 
-// 加入 TF 应用主逻辑
+// 无限循环加入 TF 应用
 async function main() {
   const Key = $.getdata("tf_key");
   const SessionId = $.getdata("tf_session_id");
@@ -68,8 +68,7 @@ async function main() {
   }
 
   const appId = "dDtSst46"; // ← 替换为你的 App ID
-  const loop = parseInt($.getdata("tf_loon_count")) || 3;
-  const delay = parseInt($.getdata("tf_interval")) || 5;
+  const delay = 5; // 每次间隔 5 秒
 
   const baseURL = `https://testflight.apple.com/v3/accounts/${Key}/ru/`;
   const headers = {
@@ -84,25 +83,27 @@ async function main() {
     "user-agent": UserAgent,
   };
 
-  for (let i = 0; i < loop; i++) {
-    $.log(`📥 第 ${i + 1} 次尝试加入 ${appId}`);
+  let count = 0;
+  while (true) {
+    count++;
+    const time = new Date().toLocaleTimeString();
+    $.log(`⏱️ [${time}] 第 ${count} 次尝试加入 ${appId}`);
     try {
       const result = await TF_Join(appId, baseURL, headers);
-      if (result.data?.status === "FULL") {
-        $.msg($.name, `⚠️ 第 ${i + 1} 次加入结果`, `队列已满（FULL）`);
+      const status = result.data?.status || "未知";
+      if (status === "FULL") {
+        $.log(`⚠️ 当前队列已满（FULL）`);
       } else {
-        $.msg($.name, `✅ 第 ${i + 1} 次加入成功`, `状态: ${result.data?.status || "未知"}`);
+        $.msg($.name, `✅ 成功加入第 ${count} 次`, `状态: ${status}`);
       }
     } catch (e) {
       $.log(`❌ 加入失败: ${e}`);
     }
     await sleep(delay * 1000);
   }
-
-  $.done();
 }
 
-// 真正的加入接口
+// 加入请求
 function TF_Join(app_id, baseURL, headers) {
   return new Promise((resolve, reject) => {
     $.post(
@@ -113,9 +114,7 @@ function TF_Join(app_id, baseURL, headers) {
       (error, response, data) => {
         if (!error && response.status === 200) {
           const json = $.toObj(data);
-          if (!json) {
-            return reject("返回 JSON 解析失败");
-          }
+          if (!json) return reject("返回 JSON 解析失败");
           resolve(json);
         } else {
           reject(error || `状态码 ${response.status}`);
@@ -129,7 +128,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Env 类
+// 通用环境适配类
 function Env(name) {
   this.name = name;
   this.getdata = (key) =>
